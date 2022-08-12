@@ -26,6 +26,12 @@ export class AppComponent implements OnInit {
     });
   }
 
+  async runAllFetchers() {
+    for (const fetcher of this.fetchers) {
+      await this.runFetcher(fetcher.key);
+    }
+  }
+
   async runFetcher(fetcherKey: any) {
     // Open tab
     if (!this.openedTab) {

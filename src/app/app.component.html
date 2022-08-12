@@ -1,6 +1,13 @@
 <mat-toolbar>
   <span>ReceiptFetcher</span>
   <span style="flex: 1 1 auto"></span>
+  <button
+    mat-icon-button
+    aria-label="Run all fetchers"
+    (click)="runAllFetchers()"
+  >
+    <mat-icon>start</mat-icon>
+  </button>
   <button mat-icon-button aria-label="Configuration" (click)="openOptions()">
     <mat-icon>settings</mat-icon>
   </button>
@@ -11,8 +18,12 @@
     <ng-container *ngFor="let fetcher of fetchers">
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>{{ fetcher.serviceName }}</mat-panel-title>
-          <mat-panel-description> </mat-panel-description>
+          <mat-panel-title>
+            {{ fetcher.serviceName }}
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ fetcher.billingItems.length }} 件
+          </mat-panel-description>
         </mat-expansion-panel-header>
 
         <ng-container *ngIf="fetcher.billingItems.length === 0">
