@@ -1,11 +1,16 @@
 import { BillingSummary } from './fetcher.interface';
-import { parseHTML } from 'linkedom';
 
 export class FetcherHelper {
-  static async loadUrl(url: string): Promise<void> {
+  private tabId: number;
+
+  constructor(tabId: number) {
+    this.tabId = tabId;
+  }
+
+  async loadUrl(url: string): Promise<void> {
     // Request to content script
     try {
-      const response = await FetcherHelper.requestToContentScript({
+      const response = await this.requestToContentScript({
         message: 'loadUrl',
         url: url,
       });
@@ -15,10 +20,10 @@ export class FetcherHelper {
     }
   }
 
-  static async getDocument(): Promise<Document> {
+  async getDocument(): Promise<Document> {
     // Request to content script
     try {
-      const response = await FetcherHelper.requestToContentScript({
+      const response = await this.requestToContentScript({
         message: 'getContent',
       });
       const html = response.result;
@@ -33,10 +38,10 @@ export class FetcherHelper {
     }
   }
 
-  static async clickElement(selector: string): Promise<void> {
+  async clickElement(selector: string): Promise<void> {
     // Request to content script
     try {
-      const response = await FetcherHelper.requestToContentScript({
+      const response = await this.requestToContentScript({
         message: 'clickElement',
         selector: selector,
       });
@@ -49,10 +54,7 @@ export class FetcherHelper {
     }
   }
 
-  static async requestToContentScript(
-    args: any,
-    count: number = 1
-  ): Promise<any> {
+  async requestToContentScript(args: any, count: number = 1): Promise<any> {
     // Find tabs
     const tabs = await chrome.tabs.query({
       active: true,
@@ -65,7 +67,7 @@ export class FetcherHelper {
 
     const tabId = tabs[0].id;
 
-    const response = await FetcherHelper.sendMessageToContentScript(args);
+    const response = await this.sendMessageToContentScript(args);
     if (!response) {
       if (5 <= count) {
         console.warn(
@@ -79,7 +81,7 @@ export class FetcherHelper {
         '[FetcherHelper] requestToContentScript - Retrying because the connection with Content Script is rejected'
       );
       await FetcherHelper.asyncTimeout(1000);
-      return await FetcherHelper.requestToContentScript(args, count + 1);
+      return await this.requestToContentScript(args, count + 1);
     } else if (response.error) {
       console.warn(
         '[FetcherHelper] requestToContentScript - Error occurred...',
@@ -91,31 +93,19 @@ export class FetcherHelper {
     return response;
   }
 
-  static async sendMessageToContentScript(args: any): Promise<any> {
-    // Find tabs
-    const tabs = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-
-    if (!tabs || !tabs[0].id) {
-      throw new Error(`[FetcherHelper] requestToContentScript - No tabs`);
-    }
-
-    const tabId = tabs[0].id;
-
+  async sendMessageToContentScript(args: any): Promise<any> {
     return new Promise((resolve, reject) => {
       console.log(
         '[FetcherHelper] sendMessageToContentScript - Message = ',
         args
       );
-      chrome.tabs.sendMessage(tabId, args, async (response: any) => {
+      chrome.tabs.sendMessage(this.tabId, args, async (response: any) => {
         resolve(response);
       });
     });
   }
 
-  static async getBillingListByTableElem(
+  async getBillingListByTableElem(
     tableElem: string | Element,
     billingIdColumn: string | ((row: Element) => string | null) | number,
     summaryTextColumn: string | ((row: Element) => string | null) | number,

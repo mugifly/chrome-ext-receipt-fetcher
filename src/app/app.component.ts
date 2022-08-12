@@ -1,4 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
+import { FetcherHelper } from 'src/fetcher/helper';
 import { Fetchers } from '../fetcher';
 
 @Component({
@@ -8,6 +9,7 @@ import { Fetchers } from '../fetcher';
 })
 export class AppComponent implements OnInit {
   fetchers: any[] = [];
+  openedTab: chrome.tabs.Tab | undefined = undefined;
   objectKeys = Object.keys;
 
   constructor(private ngZone: NgZone) {}
@@ -25,10 +27,23 @@ export class AppComponent implements OnInit {
   }
 
   async runFetcher(fetcherKey: any) {
+    // Open tab
+    if (!this.openedTab) {
+      let tab = await chrome.tabs.create({
+        url: 'https://mugifly.github.io/receipt-fetcher/',
+        active: false,
+      });
+      this.openedTab = tab;
+    }
+
     // Initialize fetcher
-    const fetcher = new Fetchers[fetcherKey]({
-      teamName: 'mugifly', // TODO
-    });
+    const fetcherHelper = new FetcherHelper(this.openedTab.id!);
+    const fetcher = new Fetchers[fetcherKey](
+      {
+        teamName: 'mugifly', // TODO
+      },
+      fetcherHelper
+    );
 
     // Get billing list
     console.log(`[AppComponent] runFetcher - Request getting billing list...`);
@@ -38,5 +53,12 @@ export class AppComponent implements OnInit {
         this.fetchers.findIndex((fetcher) => fetcher.key === fetcherKey)
       ].billingItems = billingList;
     });
+
+    // Done
+    console.log(`[AppComponent] runFetcher - Done.`);
+  }
+
+  openOptions() {
+    chrome.runtime.openOptionsPage();
   }
 }

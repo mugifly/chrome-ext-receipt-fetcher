@@ -6,18 +6,18 @@ import {
 import { FetcherHelper } from './helper';
 
 export class HerokuFetcher implements FetcherInterface {
-  constructor(config: any) {}
+  constructor(config: any, private helper: FetcherHelper) {}
 
   static getName(): string {
     return 'Heroku';
   }
 
   async getBillingList(): Promise<BillingSummary[] | null> {
-    await FetcherHelper.loadUrl(`https://dashboard.heroku.com/account/billing`);
+    await this.helper.loadUrl(`https://dashboard.heroku.com/account/billing`);
 
-    await FetcherHelper.clickElement('button.show-more');
+    await this.helper.clickElement('button.show-more');
 
-    return FetcherHelper.getBillingListByTableElem(
+    return this.helper.getBillingListByTableElem(
       '.invoices table',
       (row: Element) => {
         return Array.from(row.querySelectorAll('form'))

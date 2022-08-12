@@ -5,6 +5,11 @@
     "outDir": "./out-tsc/app",
     "types": ["chrome"]
   },
-  "files": ["src/main.ts", "src/polyfills.ts", "src/content-script.ts"],
+  "files": [
+    "src/main.ts",
+    "src/polyfills.ts",
+    "src/background-script.ts",
+    "src/content-script.ts"
+  ],
   "include": ["src/**/*.d.ts"]
 }

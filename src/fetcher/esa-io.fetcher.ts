@@ -10,7 +10,7 @@ export class EsaIoFetcher implements FetcherInterface {
     teamName: string;
   };
 
-  constructor(config: any) {
+  constructor(config: any, private helper: FetcherHelper) {
     if (!config.teamName) {
       throw new Error('teamName is required');
     }
@@ -25,11 +25,11 @@ export class EsaIoFetcher implements FetcherInterface {
   }
 
   async getBillingList(): Promise<BillingSummary[] | null> {
-    await FetcherHelper.loadUrl(
+    await this.helper.loadUrl(
       `https://${this.config.teamName}.esa.io/team/billing`
     );
 
-    return FetcherHelper.getBillingListByTableElem(
+    return this.helper.getBillingListByTableElem(
       '.table-invoice',
       (row: Element) => {
         return Array.from(row.querySelectorAll('a'))
@@ -52,7 +52,7 @@ export class EsaIoFetcher implements FetcherInterface {
   }
 
   async getBillingDetail(id: string): Promise<BillingDetail | null> {
-    await FetcherHelper.loadUrl(
+    await this.helper.loadUrl(
       `https://${this.config.teamName}.esa.io/team/receipts/${id}`
     );
 

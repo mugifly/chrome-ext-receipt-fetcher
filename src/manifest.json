@@ -4,18 +4,27 @@
   "description": "",
   "version": "1.0.0",
   "icons": {},
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "windows", "scripting"],
   "host_permissions": [],
   "action": {
-    "default_title": "ReceiptFetcher",
-    "default_popup": "index.html"
+    "default_title": "ReceiptFetcher"
+  },
+  "background": {
+    "service_worker": "background-script.js"
+  },
+  "options_ui": {
+    "page": "index.html"
   },
   "content_scripts": [
     {
-      "matches": ["https://*.esa.io/*", "https://*.heroku.com/*"],
+      "matches": [
+        "https://mugifly.github.io/*",
+        "https://*.esa.io/*",
+        "https://*.heroku.com/*"
+      ],
       "all_frames": true,
       "css": [],
-      "js": ["./content-script.js"]
+      "js": ["content-script.js"]
     }
   ]
 }

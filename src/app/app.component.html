@@ -1,45 +1,53 @@
-<h2>Fetchers</h2>
+<mat-toolbar>
+  <span>ReceiptFetcher</span>
+  <span style="flex: 1 1 auto"></span>
+  <button mat-icon-button aria-label="Configuration" (click)="openOptions()">
+    <mat-icon>settings</mat-icon>
+  </button>
+</mat-toolbar>
 
-<mat-accordion>
-  <ng-container *ngFor="let fetcher of fetchers">
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>{{ fetcher.serviceName }}</mat-panel-title>
-        <mat-panel-description> </mat-panel-description>
-      </mat-expansion-panel-header>
+<div class="content">
+  <mat-accordion>
+    <ng-container *ngFor="let fetcher of fetchers">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{ fetcher.serviceName }}</mat-panel-title>
+          <mat-panel-description> </mat-panel-description>
+        </mat-expansion-panel-header>
 
-      <ng-container *ngIf="fetcher.billingItems.length === 0">
-        <button mat-button color="primary" (click)="runFetcher(fetcher.key)">
-          取得
-        </button>
-      </ng-container>
+        <ng-container *ngIf="fetcher.billingItems.length === 0">
+          <button mat-button color="primary" (click)="runFetcher(fetcher.key)">
+            取得
+          </button>
+        </ng-container>
 
-      <ng-container *ngIf="fetcher.billingItems.length !== 0">
-        <mat-list>
-          <mat-list-item *ngFor="let billingItem of fetcher.billingItems">
-            <mat-icon mat-list-icon>receipt_long</mat-icon>
-            <div mat-line>
-              {{ billingItem.summaryText }}
-              &nbsp;&nbsp;
-              <small
-                style="color: #555; font-size: 0.8rem; font-style: italic"
-                >{{ billingItem.id }}</small
-              >
-            </div>
-            <div mat-line>
-              <span
-                *ngIf="
-                  !billingItem.priceCurrency ||
-                  billingItem.priceCurrency === 'JPY'
-                "
-                >￥</span
-              >
-              <span *ngIf="billingItem?.priceCurrency === 'USD'">＄</span>
-              {{ billingItem.totalPrice }}
-            </div>
-          </mat-list-item>
-        </mat-list>
-      </ng-container>
-    </mat-expansion-panel>
-  </ng-container>
-</mat-accordion>
+        <ng-container *ngIf="fetcher.billingItems.length !== 0">
+          <mat-list>
+            <mat-list-item *ngFor="let billingItem of fetcher.billingItems">
+              <mat-icon mat-list-icon>receipt_long</mat-icon>
+              <div mat-line>
+                {{ billingItem.summaryText }}
+                &nbsp;&nbsp;
+                <small
+                  style="color: #555; font-size: 0.8rem; font-style: italic"
+                  >{{ billingItem.id }}</small
+                >
+              </div>
+              <div mat-line>
+                <span
+                  *ngIf="
+                    !billingItem.priceCurrency ||
+                    billingItem.priceCurrency === 'JPY'
+                  "
+                  >￥</span
+                >
+                <span *ngIf="billingItem?.priceCurrency === 'USD'">＄</span>
+                {{ billingItem.totalPrice }}
+              </div>
+            </mat-list-item>
+          </mat-list>
+        </ng-container>
+      </mat-expansion-panel>
+    </ng-container>
+  </mat-accordion>
+</div>
