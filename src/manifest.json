@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "receipt-fetcher",
+  "description": "",
+  "version": "1.0.0",
+  "icons": {},
+  "permissions": [],
+  "host_permissions": [],
+  "content_scripts": []
+}
