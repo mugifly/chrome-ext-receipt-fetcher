@@ -6,6 +6,10 @@
   "icons": {},
   "permissions": [],
   "host_permissions": [],
+  "action": {
+    "default_title": "ReceiptFetcher",
+    "default_popup": "index.html"
+  },
   "content_scripts": [
     {
       "matches": ["https://*.esa.io/*"],
