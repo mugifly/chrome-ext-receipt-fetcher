@@ -21,5 +21,5 @@ export interface FetcherInterface {
 
   getBillingDetail(id: string): Promise<BillingDetail | null>;
 
-  getBillingDetailAsPdf(): Promise<string>;
+  getBillingDetailAsImage(id: string): Promise<string>;
 }

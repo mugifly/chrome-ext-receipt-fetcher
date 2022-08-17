@@ -27,7 +27,12 @@
         </mat-expansion-panel-header>
 
         <ng-container *ngIf="fetcher.billingItems.length === 0">
-          <button mat-button color="primary" (click)="runFetcher(fetcher.key)">
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="getBillingList(fetcher.key)"
+            style="float: right"
+          >
             取得
           </button>
         </ng-container>
@@ -45,16 +50,23 @@
                 >
               </div>
               <div mat-line>
-                <span
-                  *ngIf="
-                    !billingItem.priceCurrency ||
-                    billingItem.priceCurrency === 'JPY'
-                  "
-                  >￥</span
-                >
-                <span *ngIf="billingItem?.priceCurrency === 'USD'">＄</span>
-                {{ billingItem.totalPrice }}
+                {{
+                  billingItem.totalPrice
+                    | currency: billingItem.priceCurrency || "JPY"
+                }}
               </div>
+
+              <button
+                mat-stroked-button
+                [color]="billingItem.hasSavedImage ? null : 'primary'"
+                (click)="saveBillingEvidence(fetcher.key, billingItem)"
+              >
+                証憑保存
+                <ng-container *ngIf="billingItem.hasSavedImage">
+                  (再)
+                </ng-container>
+              </button>
+
             </mat-list-item>
           </mat-list>
         </ng-container>

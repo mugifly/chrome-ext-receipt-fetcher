@@ -39,22 +39,83 @@ export class FetcherHelper {
   }
 
   async clickElement(selector: string): Promise<void> {
-    // Request to content script
-    try {
-      const response = await this.requestToContentScript({
-        message: 'clickElement',
-        selector: selector,
-      });
-      console.log(
-        `[FetcherHelper] clickElement - Response received... `,
-        response
-      );
-    } catch (e: any) {
-      window.alert('Error: ' + e.message);
+    for (let i = 0; i < 10; i++) {
+      try {
+        const response = await this.requestToContentScript({
+          message: 'clickElement',
+          selector: selector,
+        });
+        console.log(
+          `[FetcherHelper] clickElement - Response received... `,
+          response
+        );
+        break;
+      } catch (e: any) {
+        if (e.message.match(/Element not found/)) {
+          console.warn(
+            '[FetcherHelper] clickElement - Element not found... Retrying...'
+          );
+          await this.asyncTimeout(100);
+          continue;
+        }
+        window.alert('Error: ' + e.message);
+        break;
+      }
     }
   }
 
-  async requestToContentScript(args: any, count: number = 1): Promise<any> {
+  async setElementAttribute(
+    selector: string,
+    attribute: string,
+    value: string
+  ): Promise<void> {
+    for (let i = 0; i < 10; i++) {
+      try {
+        const response = await this.requestToContentScript({
+          message: 'setElementAttribute',
+          selector: selector,
+          attribute: attribute,
+          value: value,
+        });
+        console.log(
+          `[FetcherHelper] setElementAttribute - Response received... `,
+          response
+        );
+        break;
+      } catch (e: any) {
+        if (e.message.match(/Element not found/)) {
+          console.warn(
+            '[FetcherHelper] setElementAttribute - Element not found... Retrying...'
+          );
+          await this.asyncTimeout(100);
+          continue;
+        }
+        window.alert('Error: ' + e.message);
+        break;
+      }
+    }
+  }
+
+  async printAsImage(): Promise<string> {
+    // Request to content script
+    try {
+      const response = await this.requestToContentScript({
+        message: 'printAsImage',
+      });
+      console.log(
+        `[FetcherHelper] printAsImage - Response received... `,
+        response
+      );
+      return response.result;
+    } catch (e: any) {
+      throw new Error('Could not get image...' + e.message);
+    }
+  }
+
+  private async requestToContentScript(
+    args: any,
+    count: number = 1
+  ): Promise<any> {
     // Find tabs
     const tabs = await chrome.tabs.query({
       active: true,
@@ -80,7 +141,7 @@ export class FetcherHelper {
       console.warn(
         '[FetcherHelper] requestToContentScript - Retrying because the connection with Content Script is rejected'
       );
-      await FetcherHelper.asyncTimeout(1000);
+      await this.asyncTimeout(1000);
       return await this.requestToContentScript(args, count + 1);
     } else if (response.error) {
       console.warn(
@@ -99,18 +160,25 @@ export class FetcherHelper {
         '[FetcherHelper] sendMessageToContentScript - Message = ',
         args
       );
-      chrome.tabs.sendMessage(this.tabId, args, async (response: any) => {
+      chrome.tabs.sendMessage(this.tabId, args, (response: any) => {
         resolve(response);
       });
     });
   }
 
-  async getBillingListByTableElem(
-    tableElem: string | Element,
-    billingIdColumn: string | ((row: Element) => string | null) | number,
-    summaryTextColumn: string | ((row: Element) => string | null) | number,
-    totalPriceTextColumn: string | ((row: Element) => string | null) | number
-  ): Promise<BillingSummary[]> {
+  async getBillingListByTableElem({
+    tableElem,
+    billingIdColumn,
+    summaryTextColumn,
+    totalPriceTextColumn,
+    currencyCode,
+  }: {
+    tableElem: string | Element;
+    billingIdColumn: string | ((row: Element) => string | null) | number;
+    summaryTextColumn: string | ((row: Element) => string | null) | number;
+    totalPriceTextColumn: string | ((row: Element) => string | null) | number;
+    currencyCode: string | 'JPY' | 'USD';
+  }): Promise<BillingSummary[]> {
     const document = await this.getDocument();
 
     const elem =
@@ -228,13 +296,14 @@ export class FetcherHelper {
         totalPrice: totalPrice
           ? parseInt(totalPrice.replace(/[^0-9]/g, ''), 10)
           : null,
+        priceCurrency: currencyCode,
       });
     }
 
     return billingList;
   }
 
-  static async asyncTimeout(msec: number): Promise<void> {
+  async asyncTimeout(msec: number): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(resolve, msec);
     });

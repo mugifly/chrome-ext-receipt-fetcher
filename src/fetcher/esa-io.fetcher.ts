@@ -29,9 +29,9 @@ export class EsaIoFetcher implements FetcherInterface {
       `https://${this.config.teamName}.esa.io/team/billing`
     );
 
-    return this.helper.getBillingListByTableElem(
-      '.table-invoice',
-      (row: Element) => {
+    return this.helper.getBillingListByTableElem({
+      tableElem: '.table-invoice',
+      billingIdColumn: (row: Element) => {
         return Array.from(row.querySelectorAll('a'))
           .map((elem: Element) => {
             if (
@@ -46,9 +46,10 @@ export class EsaIoFetcher implements FetcherInterface {
           })
           .filter((str: string | null) => str !== null)[0];
       },
-      'お支払日',
-      '合計金額'
-    );
+      summaryTextColumn: 'お支払日',
+      totalPriceTextColumn: '合計金額',
+      currencyCode: 'JPY',
+    });
   }
 
   async getBillingDetail(id: string): Promise<BillingDetail | null> {
@@ -68,7 +69,10 @@ export class EsaIoFetcher implements FetcherInterface {
     };
   }
 
-  async getBillingDetailAsPdf(): Promise<string> {
-    throw new Error('Method not implemented.');
+  async getBillingDetailAsImage(id: string): Promise<any> {
+    await this.helper.loadUrl(
+      `https://${this.config.teamName}.esa.io/team/receipts/${id}`
+    );
+    return await this.helper.printAsImage();
   }
 }
