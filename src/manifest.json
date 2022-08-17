@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "receipt-fetcher",
+  "name": "Receipt Fetcher",
   "description": "",
   "version": "1.0.0",
-  "icons": {},
-  "permissions": ["tabs", "windows", "scripting"],
+  "icons": {
+    "32": "assets/icon-32.png",
+    "128": "assets/icon-128.png"
+  },
+  "permissions": ["tabs", "windows", "scripting", "storage"],
   "host_permissions": [],
   "action": {
     "default_title": "ReceiptFetcher"
@@ -13,7 +16,7 @@
     "service_worker": "background-script.js"
   },
   "options_ui": {
-    "page": "index.html"
+    "page": "index.html#/options"
   },
   "content_scripts": [
     {

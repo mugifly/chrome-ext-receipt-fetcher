@@ -1,0 +1,122 @@
+<mat-toolbar>
+  <img class="icon" src="assets/icon-128.png" />
+  &nbsp;&nbsp;
+  <span>Receipt Fetcher</span>
+
+  <span class="spacer"></span>
+
+  <button
+    matTooltip="全てのサービスから請求リストを取得"
+    mat-icon-button
+    (click)="getBillingLists()"
+  >
+    <mat-icon>start</mat-icon>
+  </button>
+
+  &nbsp;
+
+  <button
+    matTooltip="設定"
+    mat-icon-button
+    aria-label="Configuration"
+    (click)="openOptions()"
+  >
+    <mat-icon>settings</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="content">
+  <div
+    *ngIf="serviceSettings.length === 0"
+    style="
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: 30vh 0 0 0;
+      text-align: center;
+    "
+  >
+    右上の
+    <mat-icon style="margin: 1px 0.3rem 0 0.3rem">settings</mat-icon>
+    ボタンをクリックし、設定を行ってください
+  </div>
+
+  <mat-accordion>
+    <ng-container *ngFor="let serviceSetting of serviceSettings">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{ getServiceNameByFetcherKey(serviceSetting.fetcherKey) }}
+          </mat-panel-title>
+
+          <mat-panel-description>
+            <ng-container *ngIf="!billingItems[serviceSetting.id]">
+              未取得
+            </ng-container>
+            <ng-container *ngIf="billingItems[serviceSetting.id]">
+              {{ billingItems[serviceSetting.id].length }} 件
+            </ng-container>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <ng-container
+          *ngIf="
+            !billingItems[serviceSetting.id] ||
+            billingItems[serviceSetting.id].length === 0
+          "
+        >
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="getBillingList(serviceSetting.id)"
+            style="float: right"
+          >
+            取得
+          </button>
+        </ng-container>
+
+        <ng-container
+          *ngIf="
+            billingItems[serviceSetting.id] &&
+            billingItems[serviceSetting.id].length !== 0
+          "
+        >
+          <mat-list>
+            <mat-list-item
+              *ngFor="let billingItem of billingItems[serviceSetting.id]"
+            >
+              <mat-icon mat-list-icon>receipt_long</mat-icon>
+              <div mat-line>
+                {{ billingItem.summaryText }}
+                &nbsp;&nbsp;
+                <small
+                  style="color: #555; font-size: 0.8rem; font-style: italic"
+                  >{{ billingItem.id }}</small
+                >
+              </div>
+              <div mat-line>
+                {{
+                  billingItem.totalPrice
+                    | currency: billingItem.priceCurrency || "JPY"
+                }}
+              </div>
+
+              <button
+                mat-stroked-button
+                [color]="billingItem.hasSavedImage ? null : 'primary'"
+                (click)="saveBillingEvidence(serviceSetting.id, billingItem)"
+              >
+                証憑保存
+                <ng-container *ngIf="billingItem.hasSavedImage">
+                  (再)
+                </ng-container>
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </ng-container>
+      </mat-expansion-panel>
+    </ng-container>
+  </mat-accordion>
+</div>

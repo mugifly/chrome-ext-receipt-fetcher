@@ -8,9 +8,17 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { HomeComponent } from './home/home.component';
+import { OptionsComponent } from './options/options.component';
+import { AddServiceDialogComponent } from './options/add-service-dialog/add-service-dialog.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    OptionsComponent,
+    AddServiceDialogComponent,
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

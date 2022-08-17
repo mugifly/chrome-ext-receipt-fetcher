@@ -1,0 +1,70 @@
+<div class="content">
+  <!-- Settings -->
+
+  <mat-accordion>
+    <ng-container *ngFor="let fetcherSetting of serviceSettings">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{ getServiceNameByFetcherKey(fetcherSetting.fetcherKey) }}
+          </mat-panel-title>
+          <mat-panel-description>
+            <small>ID: {{ fetcherSetting.id }}</small>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <!-- Settings for esa.io -->
+        <form *ngIf="fetcherSetting.fetcherKey == 'esaIo'">
+          <mat-form-field appearance="fill">
+            <mat-label>チーム名</mat-label>
+            <input
+              matInput
+              name="esa_io__team_name"
+              placeholder="例: mugifly"
+              [(ngModel)]="fetcherSetting.setting['teamName']"
+              (change)="onInputChange(fetcherSetting.id, $event)"
+            />
+            <span matSuffix>.esa.io</span>
+          </mat-form-field>
+          <br style="clear: both" />
+          <p class="setting-note">設定内容は自動的に保存されます</p>
+        </form>
+        <!---->
+
+        <!-- Setting for Heroku -->
+        <form *ngIf="fetcherSetting.fetcherKey == 'heroku'">
+          <p class="setting-note">設定項目はありません</p>
+        </form>
+        <!---->
+
+        <!-- Delete Setting -->
+        <button
+          (click)="deleteSetting(fetcherSetting.id)"
+          mat-stroked-button
+          color="warn"
+          style="float: right; margin-top: 0.5rem"
+        >
+          この設定を削除
+        </button>
+        <!---->
+      </mat-expansion-panel>
+    </ng-container>
+  </mat-accordion>
+
+  <!---->
+
+  <!-- Add Service -->
+  <div style="width: 100%; margin-top: 2rem; text-align: center">
+    <button
+      mat-stroked-button
+      color="primary"
+      aria-label="Add service"
+      matTooltip="取得元サービスを追加"
+      (click)="openAddServiceDialog()"
+    >
+      <mat-icon style="margin-bottom: 4px">add</mat-icon>
+      &nbsp; 取得元サービスを追加
+    </button>
+  </div>
+  <!---->
+</div>
