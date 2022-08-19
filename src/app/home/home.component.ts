@@ -30,31 +30,45 @@ export class HomeComponent implements OnInit {
   }
 
   async ngOnInit() {
-    // Load settings
+    await this.loadSettings();
+  }
+
+  async loadSettings() {
     this.serviceSettings = await this.settingService.getSettings();
   }
 
   async getBillingLists() {
-    let numOfItems = 0;
+    await this.loadSettings();
+
+    let numOfServiceSettings = 0,
+      numOfItems = 0;
     for (const serviceSetting of this.serviceSettings) {
       numOfItems += (await this.getBillingList(serviceSetting.id)) || 0;
+      numOfServiceSettings++;
     }
 
     this.snackBar.open(
-      `請求リストを取得しました: ${numOfItems} 件`,
+      `${numOfServiceSettings} 件のサービスから 計 ${numOfItems} 件の請求リストを取得しました`,
       undefined,
       {
-        duration: 3000,
+        duration: 5000,
       }
     );
   }
 
   async getBillingList(serviceSettingId: string): Promise<number | null> {
-    const fetcherInstance = await this.getFetcherInstanceByServiceSettingId(
-      serviceSettingId
-    );
     const fetcherServiceName =
       this.getServiceNameByServiceSettingId(serviceSettingId);
+
+    let fetcherInstance = null;
+    try {
+      fetcherInstance = await this.getFetcherInstanceByServiceSettingId(
+        serviceSettingId
+      );
+    } catch (e: any) {
+      this.snackBar.open(`エラー: ${fetcherServiceName} - ${e.message}`, 'OK');
+      throw e;
+    }
 
     const message = this.snackBar.open(
       `${fetcherServiceName} から請求リストを取得しています...`
@@ -66,7 +80,7 @@ export class HomeComponent implements OnInit {
       message.dismiss();
     } catch (e: any) {
       message.dismiss();
-      this.snackBar.open(`エラー: ${e.message}`, 'OK', { duration: 3000 });
+      this.snackBar.open(`エラー: ${fetcherServiceName} - ${e.message}`, 'OK');
       return 0;
     }
 
@@ -90,11 +104,18 @@ export class HomeComponent implements OnInit {
     serviceSettingId: string,
     billingItem: BillingItem
   ) {
-    const fetcherInstance = await this.getFetcherInstanceByServiceSettingId(
-      serviceSettingId
-    );
     const fetcherServiceName =
       this.getServiceNameByServiceSettingId(serviceSettingId);
+
+    let fetcherInstance = null;
+    try {
+      fetcherInstance = await this.getFetcherInstanceByServiceSettingId(
+        serviceSettingId
+      );
+    } catch (e: any) {
+      this.snackBar.open(`エラー: ${fetcherServiceName} - ${e.message}`, 'OK');
+      throw e;
+    }
 
     const message = this.snackBar.open(
       `${fetcherServiceName} から証憑を取得しています... ${billingItem.id} `
@@ -123,7 +144,7 @@ export class HomeComponent implements OnInit {
       message.dismiss();
     } catch (e: any) {
       message.dismiss();
-      this.snackBar.open(`エラー: ${e.message}`, 'OK', { duration: 3000 });
+      this.snackBar.open(`エラー: ${fetcherServiceName} - ${e.message}`, 'OK');
       return;
     }
 
@@ -166,10 +187,11 @@ export class HomeComponent implements OnInit {
 
     // Initialize fetcher
     const fetcherHelper = new FetcherHelper(this.openedTab.id!);
-    return new Fetchers[serviceSetting.fetcherKey](
+    const instance = new Fetchers[serviceSetting.fetcherKey](
       serviceSetting.setting || {},
       fetcherHelper
     );
+    return instance;
   }
 
   private getBlobByDataUrl(dataUrl: string) {
