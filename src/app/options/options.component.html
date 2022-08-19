@@ -31,6 +31,24 @@
         </form>
         <!---->
 
+        <!-- Settings for GitHub -->
+        <form *ngIf="fetcherSetting.fetcherKey == 'github'">
+          <mat-form-field appearance="fill">
+            <mat-label>Organization Name</mat-label>
+            <input
+              matInput
+              name="github__organization_name"
+              placeholder="例: foo"
+              [(ngModel)]="fetcherSetting.setting['organizationName']"
+              (change)="onInputChange(fetcherSetting.id, $event)"
+            />
+            <span matPrefix>github.com/</span>
+          </mat-form-field>
+          <br style="clear: both" />
+          <p class="setting-note">設定内容は自動的に保存されます</p>
+        </form>
+        <!---->
+
         <!-- Setting for Heroku -->
         <form *ngIf="fetcherSetting.fetcherKey == 'heroku'">
           <p class="setting-note">設定項目はありません</p>
