@@ -138,20 +138,39 @@ export class HomeComponent implements OnInit {
       `${fetcherServiceName} から証憑を取得しています... ${billingItem.id} `
     );
 
-    let saveFileName = `${fetcherServiceName}_${billingItem.id}_${billingItem.totalPrice}.png`;
+    const evidenceFileType =
+      this.getFetcherClassByServiceSettingId(
+        serviceSettingId
+      ).getEvidenceFileType();
 
-    let imageDataUri: string;
+    let saveFileName: string;
+
     try {
       console.log(
-        `[AppComponent] saveBillingEvidence - Request getting billing detail as image...`
+        `[AppComponent] saveBillingEvidence - Request getting billing evidence...`
       );
-      imageDataUri = await fetcherInstance.getBillingDetailAsImage(
+      const blob: Blob = await fetcherInstance.getBillingEvidence(
         billingItem.id
       );
-      const blob = this.getBlobByDataUrl(imageDataUri);
-      if (!blob) {
-        throw new Error('Could not convert DataUrl to Blob');
+
+      let extension;
+      switch (blob.type) {
+        case 'image/png':
+          extension = `.png`;
+          break;
+        case 'application/pdf':
+          extension = `.pdf`;
+          break;
+        default:
+          extension = '';
       }
+
+      saveFileName = `${fetcherServiceName}_${billingItem.id}_${
+        billingItem.summaryText
+      }_${billingItem.priceCurrency || ''}_${
+        billingItem.totalPrice
+      }.${extension}`;
+
       const objectUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = objectUrl;
@@ -182,11 +201,18 @@ export class HomeComponent implements OnInit {
   }
 
   private getServiceNameByServiceSettingId(serviceSettingId: string): string {
+    const fetcherClass =
+      this.getFetcherClassByServiceSettingId(serviceSettingId);
+    if (!fetcherClass) return '-';
+    return fetcherClass.getName();
+  }
+
+  private getFetcherClassByServiceSettingId(serviceSettingId: string): any {
     const serviceSetting = this.serviceSettings.find(
       (x) => x.id === serviceSettingId
     );
-    if (!serviceSetting) return '-';
-    return Fetchers[serviceSetting.fetcherKey].getName();
+    if (!serviceSetting) return null;
+    return Fetchers[serviceSetting.fetcherKey];
   }
 
   private async getFetcherInstanceByServiceSettingId(
@@ -225,24 +251,6 @@ export class HomeComponent implements OnInit {
       fetcherHelper
     );
     return instance;
-  }
-
-  private getBlobByDataUrl(dataUrl: string) {
-    const BASE64_MARKER = ';base64,';
-    const base64Index = dataUrl.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-    const dataUrlHeader = dataUrl.substring(0, base64Index);
-    const dataUrlHeaderMatches = dataUrlHeader.match(/data:([a-z\/]+);base64,/);
-    if (!dataUrlHeaderMatches) {
-      return null;
-    }
-    const mime = dataUrlHeaderMatches[1];
-    const raw = window.atob(dataUrl.substring(base64Index));
-    const arr = new Uint8Array(raw.length);
-    for (let i = 0; i < raw.length; i++) {
-      arr[i] = raw.charCodeAt(i);
-    }
-    const blob = new Blob([arr], { type: mime });
-    return blob;
   }
 
   getServiceNameByFetcherKey(fetcherKey: string) {

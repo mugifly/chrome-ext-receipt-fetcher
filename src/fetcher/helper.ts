@@ -62,6 +62,25 @@ export class FetcherHelper {
     }
   }
 
+  async getFileByUrl(
+    url: string,
+    headers?: { [key: string]: string }
+  ): Promise<Blob> {
+    // Request to content script
+    try {
+      const response = await this.requestToContentScript({
+        message: 'getFileByUrl',
+        url: url,
+        headers: headers,
+      });
+      const blob = this.getBlobByDataUrl(response.result);
+      console.log(`[FetcherHelper] getFileByUrl - Response received... `, blob);
+      return blob;
+    } catch (e: any) {
+      throw new Error('Could not get file...' + e.message);
+    }
+  }
+
   async getTitle(): Promise<string> {
     // Request to content script
     try {
@@ -355,5 +374,23 @@ export class FetcherHelper {
     return new Promise((resolve) => {
       setTimeout(resolve, msec);
     });
+  }
+
+  getBlobByDataUrl(dataUrl: string) {
+    const BASE64_MARKER = ';base64,';
+    const base64Index = dataUrl.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+    const dataUrlHeader = dataUrl.substring(0, base64Index);
+    const dataUrlHeaderMatches = dataUrlHeader.match(/data:([a-z\/]+);base64,/);
+    if (!dataUrlHeaderMatches) {
+      throw new Error('Could not get the header from DataURL.');
+    }
+    const mime = dataUrlHeaderMatches[1];
+    const raw = window.atob(dataUrl.substring(base64Index));
+    const arr = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) {
+      arr[i] = raw.charCodeAt(i);
+    }
+    const blob = new Blob([arr], { type: mime });
+    return blob;
   }
 }

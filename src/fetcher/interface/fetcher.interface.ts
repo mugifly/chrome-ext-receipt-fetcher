@@ -3,6 +3,7 @@ export interface BillingSummary {
   summaryText: string;
   totalPrice: number | null;
   priceCurrency?: string;
+  linkUrl?: string;
 }
 
 export interface BillingDetail {
@@ -18,6 +19,5 @@ export interface BillingDetail {
 
 export interface FetcherInterface {
   getBillingList(): Promise<BillingSummary[] | null>;
-
-  getBillingDetailAsImage(id: string): Promise<string>;
+  getBillingEvidence(id: string): Promise<Blob>;
 }

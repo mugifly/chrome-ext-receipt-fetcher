@@ -27,6 +27,41 @@ class ContentScript {
           result: document.location.href,
         });
 
+      case 'getFileByUrl':
+        console.log(
+          `[ContentScript] onMessageFromPopup - Getting file by url...`,
+          request
+        );
+
+        try {
+          const fetchResult = await fetch(request.url, {
+            method: 'GET',
+            headers: request.headers || undefined,
+          });
+          const blob = await fetchResult.blob();
+
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              resolve(reader.result);
+            };
+            reader.onerror = (error) => {
+              reject(error);
+            };
+            reader.readAsDataURL(blob);
+          });
+          sendResponse({
+            message: 'getFileByUrl',
+            result: dataUrl,
+          });
+        } catch (e: any) {
+          sendResponse({
+            message: 'getFileByUrl',
+            error: e.message,
+          });
+        }
+        break;
+
       case 'getContent':
         console.log(`[ContentScript] onMessageFromPopup - Getting content...`);
         return sendResponse({
@@ -42,13 +77,6 @@ class ContentScript {
         return sendResponse({
           message: 'getTitle',
           result: document.title,
-        });
-
-      case 'getContent':
-        console.log(`[ContentScript] onMessageFromPopup - Getting content...`);
-        return sendResponse({
-          message: 'getContent',
-          result: document.body.outerHTML,
         });
 
       case 'clickElement':
@@ -111,7 +139,7 @@ class ContentScript {
         break;
 
       default:
-        console.log(
+        console.warn(
           `[ContentScript] onMessageFromPopup - Invalid request = `,
           request
         );

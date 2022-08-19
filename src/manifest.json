@@ -11,7 +11,8 @@
   "host_permissions": [
     "https://mugifly.github.io/*",
     "https://*.esa.io/*",
-    "https://*.heroku.com/*"
+    "https://*.heroku.com/*",
+    "https://github.com/*"
   ],
   "action": {
     "default_title": "ReceiptFetcher"
@@ -27,7 +28,8 @@
       "matches": [
         "https://mugifly.github.io/*",
         "https://*.esa.io/*",
-        "https://*.heroku.com/*"
+        "https://*.heroku.com/*",
+        "https://github.com/*"
       ],
       "all_frames": true,
       "css": [],

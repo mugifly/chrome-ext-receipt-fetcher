@@ -13,6 +13,10 @@ export class HerokuFetcher implements FetcherInterface {
     return 'Heroku';
   }
 
+  static getEvidenceFileType(): 'url' | 'image' {
+    return 'image';
+  }
+
   async getBillingList(): Promise<BillingSummary[] | null> {
     await this.helper.loadUrl(`https://dashboard.heroku.com/account/billing`);
 
@@ -55,7 +59,7 @@ export class HerokuFetcher implements FetcherInterface {
     });
   }
 
-  async getBillingDetailAsImage(id: string): Promise<string> {
+  async getBillingEvidence(id: string): Promise<Blob> {
     await this.helper.loadUrl(`https://dashboard.heroku.com/account/billing`);
 
     await this.helper.clickElement('button.show-more');
@@ -97,6 +101,6 @@ export class HerokuFetcher implements FetcherInterface {
     await this.helper.clickElement('input[value="' + clickValue + '"');
     await this.helper.asyncTimeout(500);
 
-    return await this.helper.printAsImage();
+    return this.helper.getBlobByDataUrl(await this.helper.printAsImage());
   }
 }
