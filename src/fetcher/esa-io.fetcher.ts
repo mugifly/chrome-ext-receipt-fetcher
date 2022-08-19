@@ -25,10 +25,6 @@ export class EsaIoFetcher implements FetcherInterface {
     return 'esa.io';
   }
 
-  static getEvidenceFileType(): 'url' | 'image' {
-    return 'image';
-  }
-
   async getBillingList(): Promise<BillingSummary[] | null> {
     await this.helper.loadUrl(
       `https://${this.config.teamName}.esa.io/team/billing`
@@ -61,9 +57,9 @@ export class EsaIoFetcher implements FetcherInterface {
     });
   }
 
-  async getBillingEvidence(id: string): Promise<Blob> {
+  async getBillingEvidence(item: BillingSummary): Promise<Blob> {
     await this.helper.loadUrl(
-      `https://${this.config.teamName}.esa.io/team/receipts/${id}`
+      `https://${this.config.teamName}.esa.io/team/receipts/${item.id}`
     );
     return this.helper.getBlobByDataUrl(await this.helper.printAsImage());
   }

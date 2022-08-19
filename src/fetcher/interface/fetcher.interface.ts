@@ -19,5 +19,5 @@ export interface BillingDetail {
 
 export interface FetcherInterface {
   getBillingList(): Promise<BillingSummary[] | null>;
-  getBillingEvidence(id: string): Promise<Blob>;
+  getBillingEvidence(item: BillingSummary): Promise<Blob>;
 }

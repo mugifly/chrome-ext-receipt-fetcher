@@ -25,10 +25,6 @@ export class GithubFetcher implements FetcherInterface {
     return 'GitHub';
   }
 
-  static getEvidenceFileType(): 'url' | 'image' {
-    return 'url';
-  }
-
   async getBillingList(): Promise<BillingSummary[] | null> {
     await this.helper.loadUrl(
       `https://github.com/organizations/${this.config.organizationName}/billing/history`
@@ -81,20 +77,17 @@ export class GithubFetcher implements FetcherInterface {
     return billingList;
   }
 
-  async getBillingEvidence(id: string): Promise<Blob> {
+  async getBillingEvidence(item: BillingSummary): Promise<Blob> {
     const billingList = await this.getBillingList();
     if (!billingList) throw new Error('Could not get billing list');
 
-    const billingItem = billingList.find((billing: BillingSummary) => {
-      return billing.id === id;
-    });
-    if (!billingItem) throw new Error('Could not get billing item');
+    if (!item.linkUrl) throw new Error('Could not get url of billing evidence');
 
-    if (!billingItem.linkUrl)
-      throw new Error('Could not get url of billing item');
-
-    return await this.helper.getFileByUrl(billingItem.linkUrl, {
-      Accept: 'application/pdf',
+    return await this.helper.getFileByUrl({
+      url: item.linkUrl,
+      headers: {
+        Accept: 'application/pdf',
+      },
     });
   }
 }

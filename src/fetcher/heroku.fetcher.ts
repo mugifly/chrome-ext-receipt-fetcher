@@ -13,10 +13,6 @@ export class HerokuFetcher implements FetcherInterface {
     return 'Heroku';
   }
 
-  static getEvidenceFileType(): 'url' | 'image' {
-    return 'image';
-  }
-
   async getBillingList(): Promise<BillingSummary[] | null> {
     await this.helper.loadUrl(`https://dashboard.heroku.com/account/billing`);
 
@@ -59,7 +55,7 @@ export class HerokuFetcher implements FetcherInterface {
     });
   }
 
-  async getBillingEvidence(id: string): Promise<Blob> {
+  async getBillingEvidence(item: BillingSummary): Promise<Blob> {
     await this.helper.loadUrl(`https://dashboard.heroku.com/account/billing`);
 
     await this.helper.clickElement('button.show-more');
@@ -73,7 +69,7 @@ export class HerokuFetcher implements FetcherInterface {
         const urlMatches = url.match(
           'https://particleboard.heroku.com/account/invoices/(\\d+)'
         );
-        if (!urlMatches || urlMatches[1] !== id) {
+        if (!urlMatches || urlMatches[1] !== item.id) {
           return null;
         }
 
@@ -84,7 +80,7 @@ export class HerokuFetcher implements FetcherInterface {
       });
 
     if (forms.length === 0 || !forms[0]) {
-      throw new Error(`No invoice found for id: ${id}`);
+      throw new Error(`No invoice found for id: ${item.id}`);
     }
 
     const form = forms[0];

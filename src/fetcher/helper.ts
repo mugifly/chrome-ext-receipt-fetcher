@@ -62,20 +62,43 @@ export class FetcherHelper {
     }
   }
 
-  async getFileByUrl(
-    url: string,
-    headers?: { [key: string]: string }
-  ): Promise<Blob> {
+  async getFileByUrl({
+    url,
+    headers,
+    mode,
+  }: {
+    url: string;
+    headers?: { [key: string]: string };
+    mode?: 'no-cors' | 'cors';
+  }): Promise<Blob> {
     // Request to content script
     try {
-      const response = await this.requestToContentScript({
-        message: 'getFileByUrl',
-        url: url,
-        headers: headers,
-      });
-      const blob = this.getBlobByDataUrl(response.result);
-      console.log(`[FetcherHelper] getFileByUrl - Response received... `, blob);
-      return blob;
+      if (!mode || mode === 'cors') {
+        const response = await this.requestToContentScript({
+          message: 'getFileByUrl',
+          url: url,
+          headers: headers,
+        });
+        const blob = this.getBlobByDataUrl(response.result);
+        console.log(
+          `[FetcherHelper] getFileByUrl - Response received (content script)... `,
+          blob
+        );
+        return blob;
+      } else {
+        const response = await fetch(url, {
+          headers: headers,
+        });
+        if (400 <= response.status) {
+          throw new Error(response.statusText);
+        }
+        const blob = await response.blob();
+        console.log(
+          `[FetcherHelper] getFileByUrl - Response received (fetch)... `,
+          blob
+        );
+        return blob;
+      }
     } catch (e: any) {
       throw new Error('Could not get file...' + e.message);
     }
@@ -238,13 +261,15 @@ export class FetcherHelper {
     billingIdColumn,
     summaryTextColumn,
     totalPriceTextColumn,
+    linkUrlColumn,
     currencyCode,
   }: {
     tableElem: string | Element;
     billingIdColumn: string | ((row: Element) => string | null) | number;
     summaryTextColumn: string | ((row: Element) => string | null) | number;
     totalPriceTextColumn: string | ((row: Element) => string | null) | number;
-    currencyCode: string | 'JPY' | 'USD';
+    linkUrlColumn?: string | ((row: Element) => string | null) | number;
+    currencyCode?: string | 'JPY' | 'USD';
   }): Promise<BillingSummary[]> {
     const document = await this.getDocument();
 
@@ -256,11 +281,12 @@ export class FetcherHelper {
 
     // Find columns
     const columnNumbers: { [key: string]: number | null } = {
+      billingId: typeof billingIdColumn === 'number' ? billingIdColumn : null,
       summaryText:
         typeof summaryTextColumn === 'number' ? summaryTextColumn : null,
       totalPrice:
         typeof totalPriceTextColumn === 'number' ? totalPriceTextColumn : null,
-      billingId: typeof billingIdColumn === 'number' ? billingIdColumn : null,
+      linkUrl: typeof linkUrlColumn === 'number' ? linkUrlColumn : null,
     };
     const tableRows = Array.from(elem.querySelectorAll('tr'));
     const columnsOfFirstRow = Array.from(tableRows[0].querySelectorAll('th'));
@@ -294,6 +320,15 @@ export class FetcherHelper {
         text.indexOf(totalPriceTextColumn) !== -1
       ) {
         columnNumbers['totalPrice'] = i;
+        continue;
+      }
+
+      if (
+        typeof linkUrlColumn === 'string' &&
+        !columnNumbers['linkUrl'] &&
+        text.indexOf(linkUrlColumn) !== -1
+      ) {
+        columnNumbers['linkUrl'] = i;
         continue;
       }
     }
@@ -332,7 +367,7 @@ export class FetcherHelper {
       let billingId = null;
       if (typeof billingIdColumn === 'function') {
         billingId = billingIdColumn(row);
-      } else if (columnNumbers['billingId']) {
+      } else if (columnNumbers['billingId'] != null) {
         billingId = cells[columnNumbers['billingId']]?.textContent;
       }
 
@@ -345,25 +380,56 @@ export class FetcherHelper {
       let summaryText = null;
       if (typeof summaryTextColumn === 'function') {
         summaryText = summaryTextColumn(row);
-      } else if (columnNumbers['summaryText']) {
-        summaryText = cells[columnNumbers['summaryText']].textContent;
+      } else if (columnNumbers['summaryText'] != null) {
+        summaryText = cells[columnNumbers['summaryText']].textContent
+          ?.replace(/(\n|\r)/g, '')
+          ?.trim();
       }
 
       // Get column value Total Price
       let totalPrice = null;
       if (typeof totalPriceTextColumn === 'function') {
         totalPrice = totalPriceTextColumn(row);
-      } else if (columnNumbers['totalPrice']) {
-        totalPrice = cells[columnNumbers['totalPrice']].textContent;
+      } else if (columnNumbers['totalPrice'] != null) {
+        totalPrice = cells[columnNumbers['totalPrice']].textContent?.trim();
+      }
+      if (totalPrice === null || totalPrice === undefined) {
+        continue;
       }
 
+      if (!currencyCode) {
+        if (totalPrice.match(/(\$|USD)/)) {
+          currencyCode = 'USD';
+        } else if (totalPrice.match(/(¥|￥|JPY)/)) {
+          currencyCode = 'JPY';
+        }
+      }
+
+      if (totalPrice.indexOf('.')) {
+        totalPrice = parseFloat(totalPrice.replace(/[^0-9\.]/g, ''));
+      } else {
+        totalPrice = parseInt(totalPrice.replace(/[^0-9]/g, ''), 10);
+      }
+
+      // Get column value Total Price
+      let linkUrl = undefined;
+      if (typeof linkUrlColumn === 'function') {
+        linkUrl = linkUrlColumn(row);
+      } else if (columnNumbers['linkUrl'] != null) {
+        if (cells[columnNumbers['linkUrl']]) {
+          linkUrl = cells[columnNumbers['linkUrl']]
+            .querySelector('a')
+            ?.getAttribute('href');
+        }
+      }
+
+      // Push to array
       billingList.push({
         id: billingId,
         summaryText: summaryText || 'N/A',
-        totalPrice: totalPrice
-          ? parseInt(totalPrice.replace(/[^0-9]/g, ''), 10)
-          : null,
+        totalPrice: totalPrice,
         priceCurrency: currencyCode,
+        linkUrl: linkUrl !== null ? linkUrl : undefined,
       });
     }
 

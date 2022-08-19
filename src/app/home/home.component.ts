@@ -138,20 +138,13 @@ export class HomeComponent implements OnInit {
       `${fetcherServiceName} から証憑を取得しています... ${billingItem.id} `
     );
 
-    const evidenceFileType =
-      this.getFetcherClassByServiceSettingId(
-        serviceSettingId
-      ).getEvidenceFileType();
-
     let saveFileName: string;
 
     try {
       console.log(
         `[AppComponent] saveBillingEvidence - Request getting billing evidence...`
       );
-      const blob: Blob = await fetcherInstance.getBillingEvidence(
-        billingItem.id
-      );
+      const blob: Blob = await fetcherInstance.getBillingEvidence(billingItem);
 
       let extension;
       switch (blob.type) {
