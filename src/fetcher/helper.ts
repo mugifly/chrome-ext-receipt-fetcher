@@ -411,6 +411,11 @@ export class FetcherHelper {
         totalPrice = parseInt(totalPrice.replace(/[^0-9]/g, ''), 10);
       }
 
+      if (isNaN(totalPrice)) {
+        console.warn('Could not detected totalPrice from this row...', row);
+        continue;
+      }
+
       // Get column value Total Price
       let linkUrl = undefined;
       if (typeof linkUrlColumn === 'function') {

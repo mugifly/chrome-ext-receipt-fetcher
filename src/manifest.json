@@ -14,7 +14,8 @@
     "https://*.heroku.com/*",
     "https://github.com/*",
     "https://ifttt.com/*",
-    "https://*.stripe.com/*"
+    "https://*.stripe.com/*",
+    "https://*.chatwork.com/*"
   ],
   "action": {
     "default_title": "ReceiptFetcher"
@@ -33,7 +34,8 @@
         "https://*.heroku.com/*",
         "https://github.com/*",
         "https://ifttt.com/*",
-        "https://*.stripe.com/*"
+        "https://*.stripe.com/*",
+        "https://*.chatwork.com/*"
       ],
       "all_frames": true,
       "css": [],

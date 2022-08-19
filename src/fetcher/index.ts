@@ -1,3 +1,4 @@
+import { ChatworkFetcher } from './chatwork.fetcher';
 import { EsaIoFetcher } from './esa-io.fetcher';
 import { GithubFetcher } from './github.fetcher';
 import { HerokuFetcher } from './heroku.fetcher';
@@ -8,4 +9,5 @@ export const Fetchers: { [key: string]: any } = {
   heroku: HerokuFetcher,
   github: GithubFetcher,
   ifttt: IftttFetcher,
+  chatwork: ChatworkFetcher,
 };
