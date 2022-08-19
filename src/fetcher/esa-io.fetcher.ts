@@ -57,23 +57,6 @@ export class EsaIoFetcher implements FetcherInterface {
     });
   }
 
-  async getBillingDetail(id: string): Promise<BillingDetail | null> {
-    await this.helper.loadUrl(
-      `https://${this.config.teamName}.esa.io/team/receipts/${id}`
-    );
-
-    return {
-      id,
-      summaryText: '',
-      totalPrice: 0,
-      taxPrice: 0,
-      taxPercentage: 0,
-      priceCurrency: 'JPY',
-      startDate: '',
-      endDate: '',
-    };
-  }
-
   async getBillingDetailAsImage(id: string): Promise<any> {
     await this.helper.loadUrl(
       `https://${this.config.teamName}.esa.io/team/receipts/${id}`

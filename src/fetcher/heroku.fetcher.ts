@@ -55,19 +55,6 @@ export class HerokuFetcher implements FetcherInterface {
     });
   }
 
-  async getBillingDetail(id: string): Promise<BillingDetail | null> {
-    return {
-      id,
-      summaryText: '',
-      totalPrice: 0,
-      taxPrice: 0,
-      taxPercentage: 0,
-      priceCurrency: 'USD',
-      startDate: '',
-      endDate: '',
-    };
-  }
-
   async getBillingDetailAsImage(id: string): Promise<string> {
     await this.helper.loadUrl(`https://dashboard.heroku.com/account/billing`);
 
