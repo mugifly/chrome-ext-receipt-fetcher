@@ -1,4 +1,16 @@
-# ReceiptFetcher
+# chrome-ext-receipt-fetcher
+
+<img src="https://raw.githubusercontent.com/mugifly/chrome-ext-receipt-fetcher/master/src/assets/icon-128.png" alt="receipt-fetcher" width="128px" height="128px">
+
+---
+
+## 対応サービス / Supported Web Services
+
+https://github.com/mugifly/chrome-ext-receipt-fetcher/wiki/Supported-Services
+
+---
+
+# Angular app
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.2.
 
