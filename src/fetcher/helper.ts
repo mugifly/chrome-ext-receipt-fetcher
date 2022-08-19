@@ -1,4 +1,4 @@
-import { BillingSummary } from './fetcher.interface';
+import { BillingSummary } from './interface/fetcher.interface';
 
 export class FetcherHelper {
   private tabId: number;
@@ -16,7 +16,35 @@ export class FetcherHelper {
       });
       console.log(`[FetcherHelper] loadUrl - Response received... `, response);
     } catch (e: any) {
-      window.alert('Error: ' + e.message);
+      throw new Error('Could not load url...' + e.message);
+    }
+  }
+
+  async getUrl(): Promise<URL> {
+    // Request to content script
+    try {
+      const response = await this.requestToContentScript({
+        message: 'getUrl',
+      });
+      const url = new URL(response.result);
+      console.log(`[FetcherHelper] getUrl - Response received... `, url);
+      return url;
+    } catch (e: any) {
+      throw new Error('Could not get url...' + e.message);
+    }
+  }
+
+  async getTitle(): Promise<string> {
+    // Request to content script
+    try {
+      const response = await this.requestToContentScript({
+        message: 'getTitle',
+      });
+      const title = response.result;
+      console.log(`[FetcherHelper] getTitle - Response received... `, title);
+      return title;
+    } catch (e: any) {
+      throw new Error('Could not get title...' + e.message);
     }
   }
 
@@ -116,6 +144,8 @@ export class FetcherHelper {
     args: any,
     count: number = 1
   ): Promise<any> {
+    const MAX_NUM_OF_RETRY = 5;
+
     // Find tabs
     const tabs = await chrome.tabs.query({
       active: true,
@@ -130,18 +160,20 @@ export class FetcherHelper {
 
     const response = await this.sendMessageToContentScript(args);
     if (!response) {
-      if (5 <= count) {
+      if (MAX_NUM_OF_RETRY <= count) {
         console.warn(
           '[FetcherHelper] requestToContentScript - Connection with Content Script is rejected'
         );
-        return;
+        return null;
       }
 
       // Retrying
       console.warn(
-        '[FetcherHelper] requestToContentScript - Retrying because the connection with Content Script is rejected'
+        `[FetcherHelper] requestToContentScript - Retrying (${
+          count + 1
+        }) because the connection with Content Script is rejected`
       );
-      await this.asyncTimeout(1000);
+      await this.asyncTimeout(1000 * (count + 1));
       return await this.requestToContentScript(args, count + 1);
     } else if (response.error) {
       console.warn(

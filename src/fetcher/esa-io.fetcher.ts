@@ -2,8 +2,9 @@ import {
   FetcherInterface,
   BillingDetail,
   BillingSummary,
-} from './fetcher.interface';
+} from './interface/fetcher.interface';
 import { FetcherHelper } from './helper';
+import { UserActionRequiredException } from './exception/user-action-required-exception';
 
 export class EsaIoFetcher implements FetcherInterface {
   protected config: {
@@ -28,6 +29,10 @@ export class EsaIoFetcher implements FetcherInterface {
     await this.helper.loadUrl(
       `https://${this.config.teamName}.esa.io/team/billing`
     );
+
+    if ((await this.helper.getTitle()).match(/404 Error/)) {
+      throw new UserActionRequiredException('Please complete login');
+    }
 
     return this.helper.getBillingListByTableElem({
       tableElem: '.table-invoice',

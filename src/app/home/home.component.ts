@@ -1,6 +1,7 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Fetchers } from 'src/fetcher';
+import { UserActionRequiredException } from 'src/fetcher/exception/user-action-required-exception';
 import { FetcherHelper } from 'src/fetcher/helper';
 import { ServiceSetting } from '../common/service-setting';
 import { SettingService } from '../setting.service';
@@ -81,6 +82,12 @@ export class HomeComponent implements OnInit {
     } catch (e: any) {
       message.dismiss();
       this.snackBar.open(`エラー: ${fetcherServiceName} - ${e.message}`, 'OK');
+      if (e instanceof UserActionRequiredException) {
+        // Switch tab
+        window.setTimeout(() => {
+          this.switchToAutomatedTab();
+        }, 1000);
+      }
       return 0;
     }
 
@@ -145,6 +152,12 @@ export class HomeComponent implements OnInit {
     } catch (e: any) {
       message.dismiss();
       this.snackBar.open(`エラー: ${fetcherServiceName} - ${e.message}`, 'OK');
+      if (e instanceof UserActionRequiredException) {
+        // Switch tab
+        window.setTimeout(() => {
+          this.switchToAutomatedTab();
+        }, 1000);
+      }
       return;
     }
 
@@ -176,7 +189,17 @@ export class HomeComponent implements OnInit {
       return null;
     }
 
-    // Open tab
+    // Check the tab
+    if (this.openedTab && this.openedTab.id) {
+      try {
+        await chrome.tabs.get(this.openedTab.id!);
+      } catch (e: any) {
+        console.warn(e);
+        this.openedTab = undefined;
+      }
+    }
+
+    // Open new tab
     if (!this.openedTab) {
       let tab = await chrome.tabs.create({
         url: 'https://mugifly.github.io/receipt-fetcher/',
@@ -216,5 +239,13 @@ export class HomeComponent implements OnInit {
     const fetcherClass = Fetchers[fetcherKey];
     if (!fetcherClass) return '-';
     return fetcherClass.getName();
+  }
+
+  switchToAutomatedTab() {
+    if (!this.openedTab || !this.openedTab.id) {
+      return;
+    }
+
+    chrome.tabs.update(this.openedTab.id, { highlighted: true });
   }
 }

@@ -22,9 +22,43 @@ class ContentScript {
           `[ContentScript] onMessageFromPopup - Loading url...`,
           request.url
         );
-        await this.loadUrl(request.url);
+        try {
+          await this.loadUrl(request.url);
+          return sendResponse({
+            message: 'loadUrl',
+          });
+        } catch (e: any) {
+          return sendResponse({
+            message: 'loadUrl',
+            error: e.message,
+          });
+        }
+
+      case 'getUrl':
+        console.log(
+          `[ContentScript] onMessageFromPopup - Getting url...`,
+          document.location.href
+        );
         return sendResponse({
-          message: 'loadUrl',
+          message: 'getUrl',
+          result: document.location.href,
+        });
+
+      case 'getContent':
+        console.log(`[ContentScript] onMessageFromPopup - Getting content...`);
+        return sendResponse({
+          message: 'getContent',
+          result: document.body.outerHTML,
+        });
+
+      case 'getTitle':
+        console.log(
+          `[ContentScript] onMessageFromPopup - Getting title...`,
+          document.title
+        );
+        return sendResponse({
+          message: 'getTitle',
+          result: document.title,
         });
 
       case 'getContent':
@@ -95,9 +129,12 @@ class ContentScript {
 
       default:
         console.log(
-          `[ContentScript] onMessageFromPopup - Wrong request = `,
+          `[ContentScript] onMessageFromPopup - Invalid request = `,
           request
         );
+        sendResponse({
+          message: 'invalid',
+        });
     }
   }
 
