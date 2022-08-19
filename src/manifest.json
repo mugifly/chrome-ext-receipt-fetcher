@@ -12,7 +12,9 @@
     "https://mugifly.github.io/*",
     "https://*.esa.io/*",
     "https://*.heroku.com/*",
-    "https://github.com/*"
+    "https://github.com/*",
+    "https://ifttt.com/*",
+    "https://*.stripe.com/*"
   ],
   "action": {
     "default_title": "ReceiptFetcher"
@@ -29,7 +31,9 @@
         "https://mugifly.github.io/*",
         "https://*.esa.io/*",
         "https://*.heroku.com/*",
-        "https://github.com/*"
+        "https://github.com/*",
+        "https://ifttt.com/*",
+        "https://*.stripe.com/*"
       ],
       "all_frames": true,
       "css": [],

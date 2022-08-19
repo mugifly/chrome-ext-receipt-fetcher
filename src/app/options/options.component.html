@@ -49,8 +49,13 @@
         </form>
         <!---->
 
-        <!-- Setting for Heroku -->
-        <form *ngIf="fetcherSetting.fetcherKey == 'heroku'">
+        <!-- Setting for Heroku / IFTTT -->
+        <form
+          *ngIf="
+            fetcherSetting.fetcherKey == 'heroku' ||
+            fetcherSetting.fetcherKey == 'ifttt'
+          "
+        >
           <p class="setting-note">設定項目はありません</p>
         </form>
         <!---->
