@@ -1,12 +1,9 @@
-import {
-  FetcherInterface,
-  BillingDetail,
-  BillingSummary,
-} from './interface/fetcher.interface';
-import { FetcherHelper } from './helper';
-import { UserActionRequiredException } from './exception/user-action-required-exception';
+import { FetcherHelper } from './fetcher.helper';
+import { UserActionRequiredException } from '../user-action-required.exception';
+import { Fetcher } from 'src/app/common/fetcher';
+import { BillingSummary } from 'src/app/common/billing-summary';
 
-export class GithubFetcher implements FetcherInterface {
+export class GithubFetcher implements Fetcher {
   protected config: {
     organizationName: string;
   };

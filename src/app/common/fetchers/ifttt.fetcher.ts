@@ -1,13 +1,10 @@
-import {
-  FetcherInterface,
-  BillingDetail,
-  BillingSummary,
-} from './interface/fetcher.interface';
-import { FetcherHelper } from './helper';
-import { UserActionRequiredException } from './exception/user-action-required-exception';
+import { FetcherHelper } from './fetcher.helper';
+import { UserActionRequiredException } from '../user-action-required.exception';
 import { BillingItem } from 'src/app/home/billing-item';
+import { Fetcher } from 'src/app/common/fetcher';
+import { BillingSummary } from 'src/app/common/billing-summary';
 
-export class IftttFetcher implements FetcherInterface {
+export class IftttFetcher implements Fetcher {
   constructor(config: any, private helper: FetcherHelper) {}
 
   static getName(): string {
@@ -54,7 +51,7 @@ export class IftttFetcher implements FetcherInterface {
     return items;
   }
 
-  async getBillingEvidence(item: BillingItem): Promise<Blob> {
+  async getBillingEvidence(item: BillingSummary): Promise<Blob> {
     const billingList = await this.getBillingList();
     if (!billingList) throw new Error('Could not get billing list');
 

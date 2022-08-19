@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Fetchers } from 'src/fetcher';
+import { Fetchers } from './common/fetchers';
 import { ServiceSetting } from './common/service-setting';
 
 @Injectable({

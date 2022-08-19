@@ -1,12 +1,9 @@
-import {
-  FetcherInterface,
-  BillingDetail,
-  BillingSummary,
-} from './interface/fetcher.interface';
-import { FetcherHelper } from './helper';
-import { UserActionRequiredException } from './exception/user-action-required-exception';
+import { FetcherHelper } from './fetcher.helper';
+import { UserActionRequiredException } from '../user-action-required.exception';
+import { BillingSummary } from 'src/app/common/billing-summary';
+import { Fetcher } from 'src/app/common/fetcher';
 
-export class EsaIoFetcher implements FetcherInterface {
+export class EsaIoFetcher implements Fetcher {
   protected config: {
     teamName: string;
   };

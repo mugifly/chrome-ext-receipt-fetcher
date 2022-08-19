@@ -1,4 +1,4 @@
-import { BillingSummary } from 'src/fetcher/interface/fetcher.interface';
+import { BillingSummary } from '../common/billing-summary';
 
 export interface BillingItem extends BillingSummary {
   hasSavedImage: boolean;

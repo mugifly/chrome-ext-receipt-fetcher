@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Fetchers } from 'src/fetcher';
+import { Fetchers } from 'src/app/common/fetchers';
 import { ServiceSetting } from '../common/service-setting';
 import { SettingService } from '../setting.service';
 import { AddServiceDialogComponent } from './add-service-dialog/add-service-dialog.component';

@@ -10,6 +10,7 @@
   "permissions": ["tabs", "windows", "scripting", "storage"],
   "host_permissions": [
     "https://mugifly.github.io/*",
+    "https://box.moneyforward.com/*",
     "https://*.esa.io/*",
     "https://*.heroku.com/*",
     "https://github.com/*",
@@ -30,6 +31,7 @@
     {
       "matches": [
         "https://mugifly.github.io/*",
+        "https://box.moneyforward.com/*",
         "https://*.esa.io/*",
         "https://*.heroku.com/*",
         "https://github.com/*",

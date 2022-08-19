@@ -1,12 +1,9 @@
-import {
-  FetcherInterface,
-  BillingDetail,
-  BillingSummary,
-} from './interface/fetcher.interface';
-import { FetcherHelper } from './helper';
-import { UserActionRequiredException } from './exception/user-action-required-exception';
+import { FetcherHelper } from './fetcher.helper';
+import { UserActionRequiredException } from '../user-action-required.exception';
+import { Fetcher } from 'src/app/common/fetcher';
+import { BillingSummary } from 'src/app/common/billing-summary';
 
-export class ChatworkFetcher implements FetcherInterface {
+export class ChatworkFetcher implements Fetcher {
   constructor(config: any, private helper: FetcherHelper) {}
 
   static getName(): string {
