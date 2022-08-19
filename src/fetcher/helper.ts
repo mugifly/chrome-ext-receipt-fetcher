@@ -7,17 +7,45 @@ export class FetcherHelper {
     this.tabId = tabId;
   }
 
-  async loadUrl(url: string): Promise<void> {
-    // Request to content script
-    try {
-      const response = await this.requestToContentScript({
-        message: 'loadUrl',
-        url: url,
-      });
-      console.log(`[FetcherHelper] loadUrl - Response received... `, response);
-    } catch (e: any) {
-      throw new Error('Could not load url...' + e.message);
+  async loadUrl(url: string): Promise<boolean> {
+    function loadUrl(arg: string) {
+      window.location.href = arg;
     }
+    await chrome.scripting.executeScript({
+      args: [url],
+      target: {
+        tabId: this.tabId,
+        allFrames: false,
+      },
+      func: loadUrl,
+    });
+
+    await this.asyncTimeout(1000);
+
+    function getUrl() {
+      return window.location.href;
+    }
+    const executedResult = await chrome.scripting.executeScript({
+      target: {
+        tabId: this.tabId,
+        allFrames: false,
+      },
+      func: getUrl,
+    });
+    if (
+      !executedResult ||
+      executedResult.length == 0 ||
+      executedResult[0].result !== url
+    ) {
+      console.warn(
+        '[FetcherHelper] loadUrl - Not matched url... ',
+        url,
+        executedResult[0].result
+      );
+      return false;
+    }
+
+    return true;
   }
 
   async getUrl(): Promise<URL> {
@@ -146,18 +174,6 @@ export class FetcherHelper {
   ): Promise<any> {
     const MAX_NUM_OF_RETRY = 5;
 
-    // Find tabs
-    const tabs = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-
-    if (!tabs || !tabs[0].id) {
-      throw new Error(`[FetcherHelper] requestToContentScript - No tabs`);
-    }
-
-    const tabId = tabs[0].id;
-
     const response = await this.sendMessageToContentScript(args);
     if (!response) {
       if (MAX_NUM_OF_RETRY <= count) {
@@ -173,7 +189,7 @@ export class FetcherHelper {
           count + 1
         }) because the connection with Content Script is rejected`
       );
-      await this.asyncTimeout(1000 * (count + 1));
+      await this.asyncTimeout(500 * (count + 1));
       return await this.requestToContentScript(args, count + 1);
     } else if (response.error) {
       console.warn(

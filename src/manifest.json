@@ -8,7 +8,11 @@
     "128": "assets/icon-128.png"
   },
   "permissions": ["tabs", "windows", "scripting", "storage"],
-  "host_permissions": [],
+  "host_permissions": [
+    "https://mugifly.github.io/*",
+    "https://*.esa.io/*",
+    "https://*.heroku.com/*"
+  ],
   "action": {
     "default_title": "ReceiptFetcher"
   },
@@ -27,7 +31,8 @@
       ],
       "all_frames": true,
       "css": [],
-      "js": ["content-script.js"]
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
     }
   ]
 }

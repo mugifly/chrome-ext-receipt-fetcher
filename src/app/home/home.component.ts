@@ -43,9 +43,18 @@ export class HomeComponent implements OnInit {
 
     let numOfServiceSettings = 0,
       numOfItems = 0;
-    for (const serviceSetting of this.serviceSettings) {
-      numOfItems += (await this.getBillingList(serviceSetting.id)) || 0;
-      numOfServiceSettings++;
+
+    try {
+      for (const serviceSetting of this.serviceSettings) {
+        numOfItems += (await this.getBillingList(serviceSetting.id)) || 0;
+
+        numOfServiceSettings++;
+      }
+    } catch (e: any) {
+      if (e instanceof UserActionRequiredException) {
+        return;
+      }
+      console.warn(e);
     }
 
     this.snackBar.open(
@@ -87,6 +96,7 @@ export class HomeComponent implements OnInit {
         window.setTimeout(() => {
           this.switchToAutomatedTab();
         }, 1000);
+        throw e;
       }
       return 0;
     }

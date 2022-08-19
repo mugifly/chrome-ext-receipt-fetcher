@@ -17,23 +17,6 @@ class ContentScript {
     sendResponse: (response?: any) => void
   ) {
     switch (request.message) {
-      case 'loadUrl':
-        console.log(
-          `[ContentScript] onMessageFromPopup - Loading url...`,
-          request.url
-        );
-        try {
-          await this.loadUrl(request.url);
-          return sendResponse({
-            message: 'loadUrl',
-          });
-        } catch (e: any) {
-          return sendResponse({
-            message: 'loadUrl',
-            error: e.message,
-          });
-        }
-
       case 'getUrl':
         console.log(
           `[ContentScript] onMessageFromPopup - Getting url...`,
@@ -136,26 +119,6 @@ class ContentScript {
           message: 'invalid',
         });
     }
-  }
-
-  private async loadUrl(url: string): Promise<void> {
-    console.log(`[ContentScript] loadUrl - Loading...`, url);
-
-    if (window.location.href.indexOf(url) !== -1) {
-      console.log(`[ContentScript] Already loaded ${url}`);
-      return;
-    }
-
-    return new Promise((resolve, reject) => {
-      window.location.href = url;
-
-      window.setTimeout(() => {
-        if (window.location.href !== url) {
-          return reject();
-        }
-        resolve();
-      }, 5000);
-    });
   }
 }
 

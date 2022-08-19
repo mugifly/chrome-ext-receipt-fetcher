@@ -2,8 +2,9 @@ import {
   FetcherInterface,
   BillingDetail,
   BillingSummary,
-} from './fetcher.interface';
+} from './interface/fetcher.interface';
 import { FetcherHelper } from './helper';
+import { UserActionRequiredException } from './exception/user-action-required-exception';
 
 export class HerokuFetcher implements FetcherInterface {
   constructor(config: any, private helper: FetcherHelper) {}
@@ -14,6 +15,14 @@ export class HerokuFetcher implements FetcherInterface {
 
   async getBillingList(): Promise<BillingSummary[] | null> {
     await this.helper.loadUrl(`https://dashboard.heroku.com/account/billing`);
+
+    if ((await this.helper.getUrl()).href.match(/login/)) {
+      throw new UserActionRequiredException('Please complete login');
+    } else if ((await this.helper.getUrl()).href.match(/verify/)) {
+      throw new UserActionRequiredException(
+        'Please complete two-factor authentication'
+      );
+    }
 
     await this.helper.clickElement('button.show-more');
 
